@@ -1,4 +1,6 @@
-# Pipeline Monitoring
+# [Pipeline Monitoring](https://pipeline-monitoring.web.app)
+
+[![Build Status](https://dev.azure.com/carlhartshorn/PipelineMonitoring/_apis/build/status/carl-hartshorn.PipelineMonitoring%20CI?branchName=master)](https://dev.azure.com/carlhartshorn/PipelineMonitoring/_build/latest?definitionId=4&branchName=master)
 
 A simple Blazor application to list Azure DevOps Builds and Releases using a Personal Access Token.
 
@@ -14,9 +16,10 @@ See [Get started with Blazor](https://docs.microsoft.com/en-gb/aspnet/core/clien
 
 The solution can be run locally using Visual Studio 2019 **Preview**.
 
-## Build
+## Build and Release
 
 The site is published using the `dotnet publish -c Release` command.
+The site is built, published and deployed by the CI pipeline described in [azure-pipelines.ci.yml](/azure-pipelines.ci.yml).
 
 ## Future Direction
 
