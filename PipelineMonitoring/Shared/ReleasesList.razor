@@ -1,0 +1,28 @@
+﻿@using PipelineMonitoring.Model.Releases
+
+@foreach (var release in Releases)
+{
+    <a href="@release._Links.Web.Href" target="_blank" style="text-decoration: none!important">
+        <div class="card mb-4 @(release.GetCardClasses())">
+            <div class="card-body">
+                <h2 class="card-title">@release.Name</h2>
+                <p class="card-text">@release.ReleaseDefinition.Name</p>
+                <div class="card-group">
+                    @foreach (var environment in release.Environments)
+                    {
+                        <div class="card @(environment.GetCardClasses())">
+                            <div class="card-body">
+                                <h6 class="card-title text-center mb-0">@environment.Name</h6>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </a>
+}
+
+@code {
+    [Parameter]
+    public Release[] Releases { get; set; }
+}

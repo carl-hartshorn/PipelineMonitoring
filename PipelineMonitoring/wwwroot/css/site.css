@@ -1,0 +1,21 @@
+﻿html, body {
+	font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.navbar-nav .nav-link:focus > img, .navbar-nav .nav-link:hover > img {
+    opacity: 0.75;
+}
+
+.navbar-nav .nav-link > img {
+    opacity: 0.5;
+}
+
+.navbar-nav .nav-link active > img {
+    opacity: 1;
+}
+
+@media (max-width: 576px) {
+    #filter-select {
+        width: 100%;
+    }
+}

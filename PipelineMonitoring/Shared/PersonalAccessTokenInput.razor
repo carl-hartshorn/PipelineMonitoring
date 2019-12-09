@@ -1,0 +1,17 @@
+﻿@inject HttpClient Http
+@inject PersonalAccessTokenService PersonalAccessTokenService
+
+<div class="form-row form-group">
+    <label for="personal-access-token">Personal access token (required for private projects)</label>
+    <input id="personal-access-token" type="password" class="form-control" @bind="PersonalAccessTokenService.PersonalAccessToken" />
+    <small class="form-text text-muted">
+        We recommend using a PAT token with only Builds Read &amp; Releases Read scopes as this is stored in local storage.
+    </small>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await PersonalAccessTokenService.InitialiseFromLocalStorage();
+    }
+}

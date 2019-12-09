@@ -1,0 +1,128 @@
+﻿@page "/"
+@inject BuildsClient BuildsClient
+@inject ReleasesClient ReleasesClient
+@inject LocalStorageService LocalStorageService
+@inject AzureDevOpsSettingsService AzureDevOpsSettingsService
+@inject PersonalAccessTokenService PersonalAccessTokenService
+@inject EventService EventService
+@implements IDisposable
+@using PipelineMonitoring.Model.Common
+@using PipelineMonitoring.Model.Builds
+@using PipelineMonitoring.Model.Releases
+
+<div class="row">
+    <div class="col-12 col-md-6">
+        <Refresher RefreshAction="@FetchBuildsAndReleases" />
+    </div>
+    <div class="col-12 col-md-6">
+        <Filter FilterCriteria="@FilterCriteria" FilterLabel="Only Broken or In Progress" />
+    </div>
+</div>
+
+@if (errorFetching)
+{
+    <Error PipelineEntityPlural="builds and releases" />
+}
+else if ((builds == null || releases == null) && AzureDevOpsSettingsService.HasOrganisationAndProject)
+{
+    <div class="text-center">
+        <div class="spinner-border text-light" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+}
+else if (!AzureDevOpsSettingsService.HasOrganisationAndProject)
+{
+    <AzureDevOpsSettingsRequired />
+}
+else if (!builds.Any() && !releases.Any())
+{
+    <p class="text-center">All green 🎉</p>
+}
+else
+{
+    <div class="@(!builds.Any() || !releases.Any() ? "container" : string.Empty)">
+        <div class="row">
+            @if (builds.Any())
+            {
+                <div class="@(releases.Any() ? "col-md-6" : "col-md-12")">
+                    <div class="text-center mb-4">
+                        🛠️
+                    </div>
+                    <BuildsList Builds="@builds" />
+                </div>
+            }
+
+            @if (releases.Any())
+            {
+                <div class="@(builds.Any() ? "col-md-6" : "col-md-12")">
+                    <div class="text-center mb-4">
+                        🚀
+                    </div>
+                    <ReleasesList Releases="@releases" />
+                </div>
+            }
+        </div>
+    </div>
+}
+
+@code {
+    Build[] builds;
+    Release[] releases;
+    EventHandler<PersonalAccessTokenService.PersonalAccessTokenEventArgs> PersonalAccessTokenEventHandler;
+    EventHandler<EventService.FilterEventArgs> FilterEventHandler;
+    bool errorFetching;
+
+    FilterCriteria FilterCriteria { get; set; } = new FilterCriteria();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await AzureDevOpsSettingsService.InitialiseFromLocalStorage();
+        await PersonalAccessTokenService.InitialiseFromLocalStorage();
+        FilterCriteria = await FilterCriteria.LoadFromLocalStorage(LocalStorageService);
+
+        PersonalAccessTokenEventHandler = new EventHandler<PersonalAccessTokenService.PersonalAccessTokenEventArgs>(
+            async (sender, args) => await FetchBuildsAndReleases());
+
+        FilterEventHandler = new EventHandler<EventService.FilterEventArgs>(
+            async (sender, args) =>
+            {
+                await FilterCriteria.StoreToLocalStorage(LocalStorageService);
+                await FetchBuildsAndReleases();
+            });
+
+        PersonalAccessTokenService.PersonalAccessTokenChanged += PersonalAccessTokenEventHandler;
+        EventService.FilterChanged += FilterEventHandler;
+
+        await FetchBuildsAndReleases();
+    }
+
+    public void Dispose()
+    {
+        PersonalAccessTokenService.PersonalAccessTokenChanged -= PersonalAccessTokenEventHandler;
+        EventService.FilterChanged -= FilterEventHandler;
+    }
+
+    async Task FetchBuildsAndReleases()
+    {
+        builds = null;
+        releases = null;
+        errorFetching = false;
+        this.StateHasChanged();
+
+        if (AzureDevOpsSettingsService.HasOrganisationAndProject)
+        {
+            try
+            {
+                builds = await BuildsClient.GetBuilds(FilterCriteria);
+                releases = await ReleasesClient.GetReleases(FilterCriteria);
+            }
+            catch
+            {
+                errorFetching = true;
+            }
+        }
+
+        this.StateHasChanged();
+    }
+}

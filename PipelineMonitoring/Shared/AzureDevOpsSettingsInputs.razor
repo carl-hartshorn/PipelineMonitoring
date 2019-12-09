@@ -1,0 +1,18 @@
+﻿@inject AzureDevOpsSettingsService AzureDevOpsSettingsService
+
+<div class="form-row form-group">
+    <label for="azure-devops-organisation">Azure DevOps Organisation</label>
+    <input id="azure-devops-organisation" type="text" class="form-control" @bind="AzureDevOpsSettingsService.Organisation" />
+</div>
+
+<div class="form-row form-group">
+    <label for="azure-devops-project">Azure DevOps Project</label>
+    <input id="azure-devops-project" type="text" class="form-control" @bind="AzureDevOpsSettingsService.Project" />
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await AzureDevOpsSettingsService.InitialiseFromLocalStorage();
+    }
+}

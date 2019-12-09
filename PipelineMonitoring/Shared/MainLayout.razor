@@ -1,0 +1,25 @@
+﻿@inherits LayoutComponentBase
+
+<div class="main">
+    <nav class="navbar navbar-expand navbar-dark bg-dark border-bottom px-4">
+        <NavLink class="navbar-brand" href="">
+            <span class="d-none d-sm-block">Pipeline Monitoring</span>
+            <span class="d-inline-block d-sm-none">🛠🚀👀</span>
+        </NavLink>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse">
+            <div class="navbar-nav ml-auto">
+                <NavLink href="/settings" class="nav-item nav-link">⚙<span class="sr-only sr-only-focusable">Settings</span></NavLink>
+                <a class="nav-item nav-link" href="https://github.com/carl-hartshorn/PipelineMonitoring" style="line-height: 20px;">
+                    <img src="/GitHub-Mark-Light-32px.png" style="height: 20px;" alt="This project on GitHub" />
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid px-4 mt-4">
+        @Body
+    </div>
+</div>
