@@ -1,0 +1,19 @@
+variables:
+  prbuildnumber: $[counter('pr', 1)]
+
+name: $[format('PR - {0}', variables['prbuildnumber'])]
+
+resources:
+  - repo: self
+    clean: true
+
+trigger: none
+
+pr:
+  - master
+
+steps:
+  - task: DotNetCoreCLI@2
+    inputs:
+      command: 'test'
+      projects: '**/*.UnitTests.csproj'
