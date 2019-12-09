@@ -14,9 +14,10 @@ See [Get started with Blazor](https://docs.microsoft.com/en-gb/aspnet/core/clien
 
 The solution can be run locally using Visual Studio 2019 **Preview**.
 
-## Build
+## Build and Release
 
 The site is published using the `dotnet publish -c Release` command.
+The site is built, published and deployed by the CI pipeline described in [azure-pipelines.ci.yml](/azure-pipelines.ci.yml).
 
 ## Future Direction
 

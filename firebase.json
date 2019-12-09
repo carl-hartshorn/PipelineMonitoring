@@ -1,0 +1,28 @@
+{
+  "hosting": {
+    "public": "PipelineMonitoring/bin/Release/netstandard2.0/publish/PipelineMonitoring/dist",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "/settings",
+        "destination": "/index.html"
+      }
+    ],
+    "headers": [
+      {
+        // Sets the cache header for index.html to cache for 30 minutes
+        "source": "index.html",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "max-age=1800"
+          }
+        ]
+      }
+    ]
+  }
+}
