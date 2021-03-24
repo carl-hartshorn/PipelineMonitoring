@@ -12,8 +12,6 @@ resources:
 trigger:
   - main
 
-pr: none
-
 steps:
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build'
@@ -39,7 +37,8 @@ steps:
       arguments: '-c Release'
 
   - task: PowerShell@2
-    displayName: 'Deploy to Firebase'
+    condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+    displayName: 'Deploy to Firebase (only on main)'
     inputs:
       targetType: 'inline'
       script: |
