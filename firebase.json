@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "PipelineMonitoring/bin/Release/net5.0/publish/PipelineMonitoring/dist",
+    "public": "PipelineMonitoring/bin/Release/net5.0/publish/wwwroot",
     "ignore": [
       "firebase.json",
       "**/.*",
