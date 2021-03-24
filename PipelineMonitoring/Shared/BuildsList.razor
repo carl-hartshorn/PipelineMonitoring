@@ -3,7 +3,7 @@
 @foreach (var build in Builds)
 {
     <a href="@build._Links.Web.Href" target="_blank" style="text-decoration: none!important">
-        <div class="card mb-4 @(build.GetCardClasses())">
+        <div class="card mb-4 @(build.CardClasses)">
             <div class="card-body">
                 <h2 class="card-title">@build.Definition.Name</h2>
                 <p class="card-text">@build.BuildNumber</p>

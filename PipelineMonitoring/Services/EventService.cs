@@ -16,9 +16,5 @@ namespace PipelineMonitoring.Services
         }
 
         public event EventHandler<FilterEventArgs> FilterChanged;
-
-        public class FilterEventArgs : EventArgs
-        {
-        }
     }
 }

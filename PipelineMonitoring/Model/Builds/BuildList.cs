@@ -1,7 +1,9 @@
-﻿namespace PipelineMonitoring.Model.Builds
+﻿using System.Collections.Generic;
+
+namespace PipelineMonitoring.Model.Builds
 {
     public class BuildList
     {
-        public Build[] Value { get; set; }
+        public IEnumerable<Build> Value { get; set; }
     }
 }

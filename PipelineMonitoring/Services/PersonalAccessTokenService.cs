@@ -8,7 +8,7 @@ namespace PipelineMonitoring.Services
 {
     public class PersonalAccessTokenService
     {
-        private const string LocalStorageKey = "PersonalAccessToken";
+        private const string _localStorageKey = "PersonalAccessToken";
 
         private readonly HttpClient _httpClient;
         private readonly LocalStorageService _localStorageService;
@@ -24,7 +24,7 @@ namespace PipelineMonitoring.Services
             PersonalAccessTokenChanged += new EventHandler<PersonalAccessTokenEventArgs>(
                 async (sender, args) =>
                 {
-                    await SaveToLocalStorage();
+                    await SaveToLocalStorage().ConfigureAwait(false);
                 });
         }
         
@@ -48,7 +48,9 @@ namespace PipelineMonitoring.Services
 
         public async Task InitialiseFromLocalStorage()
         {
-            var token = await _localStorageService.GetItem(LocalStorageKey);
+            var token = await _localStorageService
+                .GetItem(_localStorageKey)
+                .ConfigureAwait(false);
 
             if (!string.IsNullOrWhiteSpace(token))
             {
@@ -58,13 +60,11 @@ namespace PipelineMonitoring.Services
 
         private async Task SaveToLocalStorage()
         {
-            await _localStorageService.SetItem(LocalStorageKey, PersonalAccessToken);
+            await _localStorageService
+                .SetItem(_localStorageKey, PersonalAccessToken)
+                .ConfigureAwait(false);
         }
 
         public event EventHandler<PersonalAccessTokenEventArgs> PersonalAccessTokenChanged;
-
-        public class PersonalAccessTokenEventArgs : EventArgs
-        {
-        }
     }
 }

@@ -34,7 +34,7 @@
             _refreshEvery = value;
             RestartTimer();
 
-            LocalStorageService.SetItem(LocalStorageKey, _refreshEvery.ToString());
+            LocalStorageService.SetItem(LocalStorageKey, _refreshEvery.ToString()).Wait();
         }
     }
 

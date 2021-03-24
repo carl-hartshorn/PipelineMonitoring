@@ -13,27 +13,22 @@
         public const string UndefinedStatus = "undefined";
 
         public string Name { get; set; }
+
         public string Status { get; set; }
 
-        public string GetCardClasses()
+        public string CardClasses
         {
-            switch (Status)
+            get
             {
-                case SucceededStatus:
-                    return "bg-success text-white";
-                case RejectedStatus:
-                    return "bg-danger text-white";
-                case CancelledStatus:
-                case PartiallySucceededStatus:
-                    return "bg-warning text-white";
-                case InProgressStatus:
-                case QueuedStatus:
-                case ScheduledStatus:
-                    return "bg-info text-white";
-                case NotStartedStatus:
-                    return "bg-secondary text-white";
-                default:
-                    return "bg-light text-dark";
+                return Status switch
+                {
+                    SucceededStatus => "bg-success text-white",
+                    RejectedStatus => "bg-danger text-white",
+                    CancelledStatus or PartiallySucceededStatus => "bg-warning text-white",
+                    InProgressStatus or QueuedStatus or ScheduledStatus => "bg-info text-white",
+                    NotStartedStatus => "bg-secondary text-white",
+                    _ => "bg-light text-dark",
+                };
             }
         }
     }
