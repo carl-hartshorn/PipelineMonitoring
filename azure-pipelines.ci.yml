@@ -10,7 +10,7 @@ resources:
     clean: true
 
 trigger:
-  - master
+  - main
 
 steps:
   - task: DotNetCoreCLI@2
