@@ -10,7 +10,7 @@ resources:
 trigger: none
 
 pr:
-  - master
+  - main
 
 steps:
   - task: DotNetCoreCLI@2
