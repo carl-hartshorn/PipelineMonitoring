@@ -15,4 +15,4 @@ pr:
 - main
 
 steps:
-- template: azure-pipelines.steps-template.yml
+- template: azure-pipelines.build-template.yml
