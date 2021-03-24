@@ -1,0 +1,36 @@
+variables:
+  major: 0
+  minor: 0
+  patch: $[counter(format('major {0} minor {1}', variables['major'], variables['minor']), 1)]
+
+name: $[format('{0}.{1}.{2}', variables['major'], variables['minor'], variables['patch'])]
+
+resources:
+- repo: self
+  clean: true
+
+trigger:
+- main
+
+pr: none
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    steps:
+    - template: azure-pipelines.build-template.yml
+
+- stage: Deploy
+  jobs:
+  - job: Deploy
+    steps:
+    - task: PowerShell@2
+      condition: eq(variables['Build.SourceBranch'], 'refs/heads/main')
+      displayName: 'Deploy to Firebase (only on main)'
+      inputs:
+        targetType: 'inline'
+        script: |
+          cd $(Build.Repository.LocalPath)
+          npm install firebase-tools
+          npx firebase deploy --token $(FirebaseToken)

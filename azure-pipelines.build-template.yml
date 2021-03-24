@@ -1,0 +1,23 @@
+steps:
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet build'
+  inputs:
+    command: 'build'
+    projects: '**/*.csproj'
+    arguments: '-c Release /p:Version=$(Build.BuildNumber)'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet test'
+  inputs:
+    command: 'test'
+    projects: '**/*.UnitTests.csproj'
+    arguments: '-c Release --no-build'
+
+- task: DotNetCoreCLI@2
+  displayName: 'dotnet publish'
+  inputs:
+    command: 'publish'
+    publishWebProjects: true
+    zipAfterPublish: false
+    modifyOutputPath: false
+    arguments: '-c Release'
