@@ -12,6 +12,8 @@ resources:
 trigger:
   - main
 
+pr: none
+
 steps:
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build'
