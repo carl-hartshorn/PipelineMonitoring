@@ -11,17 +11,26 @@ using System.Threading.Tasks;
 namespace PipelineMonitoring.UnitTests
 {
     [TestClass]
-    public class BuildsClientShould
+    public sealed class BuildsClientShould : IDisposable
     {
-        private readonly Mock<AzureDevOpsSettingsService> _mockAzureDevOpsSettingsService = new Mock<AzureDevOpsSettingsService>(null);
-        private readonly MockHttpMessageHandler _mockHttpMessageHandler = new MockHttpMessageHandler();
+        private readonly Mock<AzureDevOpsSettingsService> _mockAzureDevOpsSettingsService = new(null);
+        private readonly MockHttpMessageHandler _mockHttpMessageHandler = new();
+        private readonly HttpClient _httpClient;
+        private readonly BuildsClient _buildsClient;
+
+        public BuildsClientShould()
+        {
+            _httpClient = new(_mockHttpMessageHandler);
+
+            _buildsClient = new(
+                _mockAzureDevOpsSettingsService.Object,
+                _httpClient);
+        }
 
         [TestMethod]
         public async Task ReturnNullWhenAzureDevOpsSettingsServiceHasOrganisationAndProjectIsFalse()
         {
-            var client = CreateBuildsClient();
-            
-            var result = await client.GetBuilds(new FilterCriteria()).ConfigureAwait(false);
+            var result = await _buildsClient.GetBuilds(new FilterCriteria()).ConfigureAwait(false);
 
             Assert.IsNull(result);
         }
@@ -34,11 +43,19 @@ namespace PipelineMonitoring.UnitTests
             _mockAzureDevOpsSettingsService.Setup(m => m.HasOrganisationAndProject).Returns(true);
             _mockAzureDevOpsSettingsService.Setup(m => m.Organisation).Returns(organisation);
             _mockAzureDevOpsSettingsService.Setup(m => m.Project).Returns(project);
-            var client = CreateBuildsClient();
+            
+            await _buildsClient.GetBuilds(new FilterCriteria()).ConfigureAwait(false);
 
-            await client.GetBuilds(new FilterCriteria()).ConfigureAwait(false);
-
-            _mockHttpMessageHandler.SentMessages.Single(m => m.RequestUri.ToString().Contains($"{organisation}/{project}"));
+            Assert.IsNotNull(
+                _mockHttpMessageHandler
+                    .SentMessages
+                    .Single(
+                        m => m
+                            .RequestUri
+                            .ToString()
+                            .Contains(
+                                $"{organisation}/{project}",
+                                StringComparison.OrdinalIgnoreCase)));
         }
 
         [TestMethod]
@@ -51,11 +68,16 @@ namespace PipelineMonitoring.UnitTests
             _mockAzureDevOpsSettingsService.Setup(m => m.Project).Returns(project);
 
             _mockHttpMessageHandler.SetupResponse(@"{ ""value"": [ { ""result"": ""succeeded"" }, { ""result"": ""failed"" } ] }");
-            var client = CreateBuildsClient();
+            
+            var builds = await _buildsClient
+                .GetBuilds(
+                    new FilterCriteria
+                    {
+                        ShowAll = true
+                    })
+                .ConfigureAwait(false);
 
-            var builds = await client.GetBuilds(new FilterCriteria { ShowAll = true }).ConfigureAwait(false);
-
-            Assert.AreEqual(2, builds.Count());
+            Assert.AreEqual(2, builds.Length);
             Assert.IsTrue(builds.Any(b => b.Result == Build.SucceededResult));
         }
 
@@ -69,17 +91,23 @@ namespace PipelineMonitoring.UnitTests
             _mockAzureDevOpsSettingsService.Setup(m => m.Project).Returns(project);
 
             _mockHttpMessageHandler.SetupResponse(@"{ ""value"": [ { ""result"": ""succeeded"" }, { ""result"": ""failed"" } ] }");
-            var client = CreateBuildsClient();
+            
+            var builds = await _buildsClient
+                .GetBuilds(
+                    new FilterCriteria
+                    {
+                        ShowAll = false
+                    })
+                .ConfigureAwait(false);
 
-            var builds = await client.GetBuilds(new FilterCriteria { ShowAll = false }).ConfigureAwait(false);
-
-            Assert.AreEqual(1, builds.Count());
+            Assert.AreEqual(1, builds.Length);
             Assert.IsFalse(builds.Any(b => b.Result == Build.SucceededResult));
         }
 
-        private BuildsClient CreateBuildsClient()
-            => new BuildsClient(
-                _mockAzureDevOpsSettingsService.Object,
-                new HttpClient(_mockHttpMessageHandler));
+        public void Dispose()
+        {
+            _mockHttpMessageHandler.Dispose();
+            _httpClient.Dispose();
+        }
     }
 }

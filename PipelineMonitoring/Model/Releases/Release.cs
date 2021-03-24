@@ -1,5 +1,7 @@
 ﻿using PipelineMonitoring.Model.Common;
 using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace PipelineMonitoring.Model.Releases
@@ -12,20 +14,25 @@ namespace PipelineMonitoring.Model.Releases
 
         public ReleaseDefinition ReleaseDefinition { get; set; }
 
-        public Environment[] Environments { get; set; }
+        public IEnumerable<Environment> Environments { get; set; }
 
+        [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "Name from Azure DevOps REST API")]
+        [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Name from Azure DevOps REST API")]
         public Links _Links { get; set; }
-
-        public string GetCardClasses()
+        
+        public string CardClasses
         {
-            var lastEnvironmentWithoutNotStartedStatus = Environments.LastOrDefault(e => e.Status != Environment.NotStartedStatus);
-
-            if (lastEnvironmentWithoutNotStartedStatus == null)
+            get
             {
-                return "bg-secondary text-white";
-            }
+                var lastEnvironmentWithoutNotStartedStatus = Environments.LastOrDefault(e => e.Status != Environment.NotStartedStatus);
 
-            return lastEnvironmentWithoutNotStartedStatus.GetCardClasses();
+                if (lastEnvironmentWithoutNotStartedStatus == null)
+                {
+                    return "bg-secondary text-white";
+                }
+
+                return lastEnvironmentWithoutNotStartedStatus.CardClasses;
+            }
         }
     }
 }

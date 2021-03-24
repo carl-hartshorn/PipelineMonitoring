@@ -69,8 +69,8 @@ else
 @code {
     Build[] builds;
     Release[] releases;
-    EventHandler<PersonalAccessTokenService.PersonalAccessTokenEventArgs> PersonalAccessTokenEventHandler;
-    EventHandler<EventService.FilterEventArgs> FilterEventHandler;
+    EventHandler<PersonalAccessTokenEventArgs> PersonalAccessTokenEventHandler;
+    EventHandler<FilterEventArgs> FilterEventHandler;
     bool errorFetching;
 
     FilterCriteria FilterCriteria { get; set; } = new FilterCriteria();
@@ -81,10 +81,10 @@ else
         await PersonalAccessTokenService.InitialiseFromLocalStorage();
         FilterCriteria = await FilterCriteria.LoadFromLocalStorage(LocalStorageService);
 
-        PersonalAccessTokenEventHandler = new EventHandler<PersonalAccessTokenService.PersonalAccessTokenEventArgs>(
+        PersonalAccessTokenEventHandler = new EventHandler<PersonalAccessTokenEventArgs>(
             async (sender, args) => await FetchBuildsAndReleases());
 
-        FilterEventHandler = new EventHandler<EventService.FilterEventArgs>(
+        FilterEventHandler = new EventHandler<FilterEventArgs>(
             async (sender, args) =>
             {
                 await FilterCriteria.StoreToLocalStorage(LocalStorageService);

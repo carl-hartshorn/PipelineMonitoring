@@ -5,8 +5,8 @@ namespace PipelineMonitoring.Services
 {
     public class LocalStorageService
     {
-        private const string GetItemFunctionName = "interopLocalStorageGetItem";
-        private const string SetItemFunctionName = "interopLocalStorageSetItem";
+        private const string _getItemFunctionName = "interopLocalStorageGetItem";
+        private const string _setItemFunctionName = "interopLocalStorageSetItem";
 
         private readonly IJSRuntime _jsRuntime;
 
@@ -17,9 +17,9 @@ namespace PipelineMonitoring.Services
         }
 
         public virtual async Task<string> GetItem(string key)
-            => await _jsRuntime.InvokeAsync<string>(GetItemFunctionName, key);
+            => await _jsRuntime.InvokeAsync<string>(_getItemFunctionName, key).ConfigureAwait(false);
 
         public virtual async Task SetItem(string key, string value)
-            => await _jsRuntime.InvokeAsync<string>(SetItemFunctionName, key, value);
+            => await _jsRuntime.InvokeVoidAsync(_setItemFunctionName, key, value).ConfigureAwait(false);
     }
 }

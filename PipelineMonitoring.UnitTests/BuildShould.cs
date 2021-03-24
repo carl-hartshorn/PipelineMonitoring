@@ -14,7 +14,7 @@ namespace PipelineMonitoring.UnitTests
                 Status = "inProgress"
             };
 
-            Assert.AreEqual("bg-info text-white", build.GetCardClasses());
+            Assert.AreEqual("bg-info text-white", build.CardClasses);
         }
 
         [DataTestMethod]
@@ -31,7 +31,7 @@ namespace PipelineMonitoring.UnitTests
                 Result = result
             };
 
-            Assert.AreEqual(expectedCardClasses, build.GetCardClasses());
+            Assert.AreEqual(expectedCardClasses, build.CardClasses);
         }
     }
 }

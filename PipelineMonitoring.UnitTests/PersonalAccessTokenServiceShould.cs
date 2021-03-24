@@ -4,21 +4,26 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Net.Http;
 using System.Threading.Tasks;
+using System;
 
 namespace PipelineMonitoring.UnitTests
 {
     [TestClass]
-    public class PersonalAccessTokenServiceShould
+    public sealed class PersonalAccessTokenServiceShould : IDisposable
     {
-        private readonly HttpClient _httpClient = new HttpClient();
-        private readonly Mock<LocalStorageService> _mockLocalStorageService = new Mock<LocalStorageService>(Mock.Of<IJSRuntime>());
+        private readonly HttpClient _httpClient = new();
+        private readonly Mock<LocalStorageService> _mockLocalStorageService = new(Mock.Of<IJSRuntime>());
+        private readonly PersonalAccessTokenService _personalAccessTokenService;
+
+        public PersonalAccessTokenServiceShould()
+        {
+            _personalAccessTokenService = new(_httpClient, _mockLocalStorageService.Object);
+        }
 
         [TestMethod]
         public void ReturnNullForPersonalAccessTokenInitially()
         {
-            var service = CreatePersonalAccessTokenService();
-
-            Assert.IsNull(service.PersonalAccessToken);
+            Assert.IsNull(_personalAccessTokenService.PersonalAccessToken);
         }
 
         [DataTestMethod]
@@ -31,15 +36,16 @@ namespace PipelineMonitoring.UnitTests
             string expectedDefaultAuthorizationHeader)
         {
             _mockLocalStorageService.Setup(m => m.GetItem("PersonalAccessToken")).ReturnsAsync(localStorageContents);
-            var service = CreatePersonalAccessTokenService();
             
-            await service.InitialiseFromLocalStorage().ConfigureAwait(false);
+            await _personalAccessTokenService.InitialiseFromLocalStorage().ConfigureAwait(false);
 
-            Assert.AreEqual(expectedPersonalAccessToken, service.PersonalAccessToken);
+            Assert.AreEqual(expectedPersonalAccessToken, _personalAccessTokenService.PersonalAccessToken);
             Assert.AreEqual(expectedDefaultAuthorizationHeader, _httpClient.DefaultRequestHeaders.Authorization?.ToString());
         }
 
-        private PersonalAccessTokenService CreatePersonalAccessTokenService()
-            => new PersonalAccessTokenService(_httpClient, _mockLocalStorageService.Object);
+        public void Dispose()
+        {
+            _httpClient.Dispose();
+        }
     }
 }

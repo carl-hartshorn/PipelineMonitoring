@@ -9,7 +9,7 @@ namespace PipelineMonitoring.UnitTests
     {
         private HttpResponseMessage _response;
         
-        public List<HttpRequestMessage> SentMessages { get; } = new List<HttpRequestMessage>();
+        public ICollection<HttpRequestMessage> SentMessages { get; } = new List<HttpRequestMessage>();
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {

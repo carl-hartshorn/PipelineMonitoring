@@ -1,4 +1,5 @@
 ﻿using PipelineMonitoring.Services;
+using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -6,13 +7,18 @@ namespace PipelineMonitoring.Model.Common
 {
     public class FilterCriteria
     {
-        public bool ShowAll { get; set; }
+        private const string _key = "FilterCriteria";
 
-        private const string Key = "FilterCriteria";
+        public bool ShowAll { get; set; }
 
         public static async Task<FilterCriteria> LoadFromLocalStorage(LocalStorageService localStorageService)
         {
-            var persistedFilterCriteria = await localStorageService.GetItem(Key);
+            if (localStorageService is null)
+            {
+                throw new ArgumentNullException(nameof(localStorageService));
+            }
+
+            var persistedFilterCriteria = await localStorageService.GetItem(_key).ConfigureAwait(false);
 
             if (!string.IsNullOrWhiteSpace(persistedFilterCriteria))
             {
@@ -24,9 +30,14 @@ namespace PipelineMonitoring.Model.Common
 
         public async Task StoreToLocalStorage(LocalStorageService localStorageService)
         {
+            if (localStorageService is null)
+            {
+                throw new ArgumentNullException(nameof(localStorageService));
+            }
+
             var jsonFilterCriteria = JsonSerializer.Serialize(this);
 
-            await localStorageService.SetItem(Key, jsonFilterCriteria);
+            await localStorageService.SetItem(_key, jsonFilterCriteria).ConfigureAwait(false);
         }
     }
 }

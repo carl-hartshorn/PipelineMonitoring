@@ -1,8 +1,8 @@
 ﻿using PipelineMonitoring.Model.Common;
 using PipelineMonitoring.Model.Releases;
-using Microsoft.AspNetCore.Components;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace PipelineMonitoring.Services
@@ -28,11 +28,12 @@ namespace PipelineMonitoring.Services
             }
 
             var releaseList = await _httpClient
-                .GetJsonAsync<ReleaseList>(
-                    $"https://vsrm.dev.azure.com/{_azureDevOpsSettingsService.Organisation}/{_azureDevOpsSettingsService.Project}/_apis/release/releases?api-version=5.0&$expand=environments");
+                .GetFromJsonAsync<ReleaseList>(
+                    $"https://vsrm.dev.azure.com/{_azureDevOpsSettingsService.Organisation}/{_azureDevOpsSettingsService.Project}/_apis/release/releases?api-version=5.0&$expand=environments")
+                .ConfigureAwait(false);
 
-            return filterCriteria.ShowAll
-                ? releaseList.MostRecentReleasesByDefinition()
+            return (filterCriteria?.ShowAll ?? false)
+                ? releaseList.MostRecentReleasesByDefinition().ToArray()
                 : releaseList
                     .MostRecentReleasesByDefinition()
                     .Where(
@@ -40,7 +41,7 @@ namespace PipelineMonitoring.Services
                             .Environments
                             .Any(
                                 e => e.Status != Environment.SucceededStatus))
-                            .ToArray();
+                    .ToArray();
         }
     }
 }

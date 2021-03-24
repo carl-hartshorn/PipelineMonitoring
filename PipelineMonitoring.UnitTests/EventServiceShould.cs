@@ -10,15 +10,12 @@ namespace PipelineMonitoring.UnitTests
         public void SendFilterChangedWhenFilterChangedIsCalled()
         {
             var handlerTriggered = false;
-            var service = CreateEventService();
+            var service = new EventService();
             service.FilterChanged += (sender, eventArgs) => handlerTriggered = true ;
 
             service.SendFilterChanged();
 
             Assert.IsTrue(handlerTriggered);
         }
-
-        private EventService CreateEventService()
-            => new EventService();
     }
 }

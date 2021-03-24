@@ -10,17 +10,26 @@ using System.Threading.Tasks;
 namespace PipelineMonitoring.UnitTests
 {
     [TestClass]
-    public class ReleasesClientShould
+    public sealed class ReleasesClientShould : IDisposable
     {
-        private readonly Mock<AzureDevOpsSettingsService> _mockAzureDevOpsSettingsService = new Mock<AzureDevOpsSettingsService>(null);
-        private readonly MockHttpMessageHandler _mockHttpMessageHandler = new MockHttpMessageHandler();
+        private readonly Mock<AzureDevOpsSettingsService> _mockAzureDevOpsSettingsService = new(null);
+        private readonly MockHttpMessageHandler _mockHttpMessageHandler = new();
+        private readonly HttpClient _httpClient;
+        private readonly ReleasesClient _releasesClient;
+
+        public ReleasesClientShould()
+        {
+            _httpClient = new(_mockHttpMessageHandler);
+
+            _releasesClient = new(
+                _mockAzureDevOpsSettingsService.Object,
+                _httpClient);
+        }
 
         [TestMethod]
         public async Task ReturnNullWhenAzureDevOpsSettingsServiceHasOrganisationAndProjectIsFalse()
-        {
-            var client = CreateReleasesClient();
-            
-            var result = await client.GetReleases(new FilterCriteria()).ConfigureAwait(false);
+        {            
+            var result = await _releasesClient.GetReleases(new FilterCriteria()).ConfigureAwait(false);
 
             Assert.IsNull(result);
         }
@@ -33,11 +42,19 @@ namespace PipelineMonitoring.UnitTests
             _mockAzureDevOpsSettingsService.Setup(m => m.HasOrganisationAndProject).Returns(true);
             _mockAzureDevOpsSettingsService.Setup(m => m.Organisation).Returns(organisation);
             _mockAzureDevOpsSettingsService.Setup(m => m.Project).Returns(project);
-            var client = CreateReleasesClient();
 
-            await client.GetReleases(new FilterCriteria()).ConfigureAwait(false);
+            await _releasesClient.GetReleases(new FilterCriteria()).ConfigureAwait(false);
 
-            _mockHttpMessageHandler.SentMessages.Single(m => m.RequestUri.ToString().Contains($"{organisation}/{project}"));
+            Assert.IsNotNull(
+                _mockHttpMessageHandler
+                    .SentMessages
+                    .Single(
+                        m => m
+                            .RequestUri
+                            .ToString()
+                            .Contains(
+                                $"{organisation}/{project}",
+                                StringComparison.OrdinalIgnoreCase)));
         }
 
         [TestMethod]
@@ -80,12 +97,18 @@ namespace PipelineMonitoring.UnitTests
         }
     ]
 }");
-            var client = CreateReleasesClient();
 
-            var releases = await client.GetReleases(new FilterCriteria { ShowAll = true }).ConfigureAwait(false);
+            var releases = await _releasesClient.GetReleases(new FilterCriteria { ShowAll = true }).ConfigureAwait(false);
 
-            Assert.AreEqual(2, releases.Count());
-            Assert.IsTrue(releases.Any(b => b.Environments.All(e => e.Status == Model.Releases.Environment.SucceededStatus)));
+            Assert.AreEqual(2, releases.Length);
+
+            Assert.IsTrue(
+                releases
+                    .Any(
+                        b => b
+                            .Environments
+                            .All(
+                                e => e.Status == Model.Releases.Environment.SucceededStatus)));
         }
 
         [TestMethod]
@@ -128,12 +151,24 @@ namespace PipelineMonitoring.UnitTests
         }
     ]
 }");
-            var client = CreateReleasesClient();
 
-            var releases = await client.GetReleases(new FilterCriteria { ShowAll = false }).ConfigureAwait(false);
+            var releases = await _releasesClient
+                .GetReleases(
+                    new FilterCriteria
+                    {
+                        ShowAll = false
+                    })
+                .ConfigureAwait(false);
 
-            Assert.AreEqual(1, releases.Count());
-            Assert.IsFalse(releases.Any(b => b.Environments.All(e => e.Status == Model.Releases.Environment.SucceededStatus)));
+            Assert.AreEqual(1, releases.Length);
+
+            Assert.IsFalse(
+                releases
+                    .Any(
+                        b => b
+                            .Environments
+                            .All(
+                                e => e.Status == Model.Releases.Environment.SucceededStatus)));
         }
 
         [TestMethod]
@@ -172,17 +207,23 @@ namespace PipelineMonitoring.UnitTests
         }
     ]
 }");
-            var client = CreateReleasesClient();
 
-            var releases = await client.GetReleases(new FilterCriteria { ShowAll = false }).ConfigureAwait(false);
+            var releases = await _releasesClient
+                .GetReleases(
+                    new FilterCriteria
+                    { 
+                        ShowAll = false
+                    })
+                .ConfigureAwait(false);
 
-            Assert.AreEqual(1, releases.Count());
+            Assert.AreEqual(1, releases.Length);
             Assert.AreEqual("queued", releases.Single().Environments.Single().Status);
         }
 
-        private ReleasesClient CreateReleasesClient()
-            => new ReleasesClient(
-                _mockAzureDevOpsSettingsService.Object,
-                new HttpClient(_mockHttpMessageHandler));
+        public void Dispose()
+        {
+            _mockHttpMessageHandler.Dispose();
+            _httpClient.Dispose();
+        }
     }
 }

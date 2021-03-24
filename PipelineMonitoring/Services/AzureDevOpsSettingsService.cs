@@ -5,7 +5,7 @@ namespace PipelineMonitoring.Services
 {
     public class AzureDevOpsSettingsService
     {
-        private const string LocalStorageKey = "AzureDevOpsSettings";
+        private const string _localStorageKey = "AzureDevOpsSettings";
 
         private readonly LocalStorageService _localStorageService;
         private string _organisation;
@@ -19,7 +19,7 @@ namespace PipelineMonitoring.Services
             AzureDevOpsSettingsChanged += new EventHandler<AzureDevOpsSettingsChangedEventArgs>(
                 async (sender, args) =>
                 {
-                    await SaveToLocalStorage();
+                    await SaveToLocalStorage().ConfigureAwait(false);
                 });
         }
 
@@ -49,7 +49,7 @@ namespace PipelineMonitoring.Services
 
         public async Task InitialiseFromLocalStorage()
         {
-            var settings = await _localStorageService.GetItem(LocalStorageKey);
+            var settings = await _localStorageService.GetItem(_localStorageKey).ConfigureAwait(false);
             if (!string.IsNullOrWhiteSpace(settings))
             {
                 Organisation = settings.Split(':')[0];
@@ -59,13 +59,13 @@ namespace PipelineMonitoring.Services
 
         private async Task SaveToLocalStorage()
         {
-            await _localStorageService.SetItem(LocalStorageKey, $"{Organisation}:{Project}");
+            await _localStorageService
+                .SetItem(
+                    _localStorageKey,
+                    $"{Organisation}:{Project}")
+                .ConfigureAwait(false);
         }
 
         public event EventHandler<AzureDevOpsSettingsChangedEventArgs> AzureDevOpsSettingsChanged;
-
-        public class AzureDevOpsSettingsChangedEventArgs : EventArgs
-        {
-        }
     }
 }

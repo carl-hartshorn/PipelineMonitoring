@@ -24,7 +24,7 @@ namespace PipelineMonitoring.UnitTests
                 }
             };
 
-            Assert.AreEqual("bg-secondary text-white", release.GetCardClasses());
+            Assert.AreEqual("bg-secondary text-white", release.CardClasses);
         }
 
         [DataTestMethod]
@@ -54,7 +54,7 @@ namespace PipelineMonitoring.UnitTests
                 }
             };
 
-            Assert.AreEqual(expectedCardClasses, release.GetCardClasses());
+            Assert.AreEqual(expectedCardClasses, release.CardClasses);
         }
     }
 }

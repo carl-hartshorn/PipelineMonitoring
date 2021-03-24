@@ -1,8 +1,8 @@
 ﻿using PipelineMonitoring.Model.Builds;
 using PipelineMonitoring.Model.Common;
-using Microsoft.AspNetCore.Components;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Json;
 using System.Threading.Tasks;
 
 namespace PipelineMonitoring.Services
@@ -28,11 +28,12 @@ namespace PipelineMonitoring.Services
             }
 
             var buildList = await _httpClient
-                .GetJsonAsync<BuildList>(
-                    $"https://dev.azure.com/{_azureDevOpsSettingsService.Organisation}/{_azureDevOpsSettingsService.Project}/_apis/build/builds?api-version=5.0&branch=master&maxBuildsPerDefinition=1");
+                .GetFromJsonAsync<BuildList>(
+                    $"https://dev.azure.com/{_azureDevOpsSettingsService.Organisation}/{_azureDevOpsSettingsService.Project}/_apis/build/builds?api-version=5.0&branch=master&maxBuildsPerDefinition=1")
+                .ConfigureAwait(false);
 
-            return filterCriteria.ShowAll
-                ? buildList.Value
+            return (filterCriteria?.ShowAll ?? false)
+                ? buildList.Value.ToArray()
                 : buildList.Value.Where(b => b.Result != Build.SucceededResult).ToArray();
         }
     }

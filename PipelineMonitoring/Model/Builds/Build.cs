@@ -1,4 +1,5 @@
 ﻿using PipelineMonitoring.Model.Common;
+using System.Diagnostics.CodeAnalysis;
 
 namespace PipelineMonitoring.Model.Builds
 {
@@ -19,27 +20,26 @@ namespace PipelineMonitoring.Model.Builds
 
         public BuildDefinition Definition { get; set; }
 
+        [SuppressMessage("Naming", "CA1707:Identifiers should not contain underscores", Justification = "Name from Azure DevOps REST API")]
+        [SuppressMessage("Style", "IDE1006:Naming Styles", Justification = "Name from Azure DevOps REST API")]
         public Links _Links { get; set; }
 
-        public string GetCardClasses()
+        public string CardClasses
         {
-            if (Status == InProgressStatus)
+            get
             {
-                return "bg-info text-white";
-            }
+                if (Status == InProgressStatus)
+                {
+                    return "bg-info text-white";
+                }
 
-            switch (Result)
-            {
-                case SucceededResult:
-                    return "bg-success text-white";
-                case FailedResult:
-                    return "bg-danger text-white";
-                case CancelledResult:
-                case NoneResult:
-                case PartiallySucceededResult:
-                    return "bg-warning text-white";
-                default:
-                    return "bg-light text-dark";
+                return Result switch
+                {
+                    SucceededResult => "bg-success text-white",
+                    FailedResult => "bg-danger text-white",
+                    CancelledResult or NoneResult or PartiallySucceededResult => "bg-warning text-white",
+                    _ => "bg-light text-dark",
+                };
             }
         }
     }

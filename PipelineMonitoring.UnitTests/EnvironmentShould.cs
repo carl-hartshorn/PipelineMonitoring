@@ -24,7 +24,7 @@ namespace PipelineMonitoring.UnitTests
                 Status = status
             };
 
-            Assert.AreEqual(expectedCardClasses, environment.GetCardClasses());
+            Assert.AreEqual(expectedCardClasses, environment.CardClasses);
         }
     }
 }
