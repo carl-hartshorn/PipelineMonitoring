@@ -11,18 +11,6 @@
         "source": "/settings",
         "destination": "/index.html"
       }
-    ],
-    "headers": [
-      {
-        // Sets the cache header for index.html to cache for 30 minutes
-        "source": "index.html",
-        "headers": [
-          {
-            "key": "Cache-Control",
-            "value": "max-age=1800"
-          }
-        ]
-      }
     ]
   }
 }
