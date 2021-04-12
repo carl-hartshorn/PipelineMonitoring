@@ -29,7 +29,7 @@ namespace PipelineMonitoring.Services
 
             var buildList = await _httpClient
                 .GetFromJsonAsync<BuildList>(
-                    $"https://dev.azure.com/{_azureDevOpsSettingsService.Organisation}/{_azureDevOpsSettingsService.Project}/_apis/build/builds?api-version=5.0&branch=master&maxBuildsPerDefinition=1")
+                    $"https://dev.azure.com/{_azureDevOpsSettingsService.Organisation}/{_azureDevOpsSettingsService.Project}/_apis/build/builds?api-version=5.0&maxBuildsPerDefinition=1&queryOrder=startTimeDescending")
                 .ConfigureAwait(false);
 
             return (filterCriteria?.ShowAll ?? false)
