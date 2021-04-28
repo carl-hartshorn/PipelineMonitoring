@@ -1,6 +1,6 @@
 # [Pipeline Monitoring](https://pipeline-monitoring.web.app)
 
-[![Build Status](https://dev.azure.com/carlhartshorn/PipelineMonitoring/_apis/build/status/carl-hartshorn.PipelineMonitoring%20CI?branchName=master)](https://dev.azure.com/carlhartshorn/PipelineMonitoring/_build/latest?definitionId=4&branchName=master)
+[![Build Status](https://dev.azure.com/carlhartshorn/PipelineMonitoring/_apis/build/status/CI%20Build%20and%20Deploy?branchName=main)](https://dev.azure.com/carlhartshorn/PipelineMonitoring/_build/latest?definitionId=9&branchName=main)
 
 A simple Blazor application to list Azure DevOps Builds and Releases using a Personal Access Token.
 
