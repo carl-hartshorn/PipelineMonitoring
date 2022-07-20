@@ -1,9 +1,8 @@
 ﻿using System.Collections.Generic;
 
-namespace PipelineMonitoring.Model.Builds
+namespace PipelineMonitoring.Model.Builds;
+
+public class BuildList
 {
-    public class BuildList
-    {
-        public IEnumerable<Build> Value { get; set; }
-    }
+    public IEnumerable<Build> Value { get; set; }
 }

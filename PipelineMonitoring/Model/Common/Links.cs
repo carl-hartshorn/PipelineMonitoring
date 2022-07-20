@@ -1,7 +1,6 @@
-﻿namespace PipelineMonitoring.Model.Common
+﻿namespace PipelineMonitoring.Model.Common;
+
+public class Links
 {
-    public class Links
-    {
-        public Link Web { get; set; }
-    }
+    public Link Web { get; set; }
 }

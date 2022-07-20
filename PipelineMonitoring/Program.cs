@@ -4,27 +4,26 @@ using PipelineMonitoring.Services;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace PipelineMonitoring
+namespace PipelineMonitoring;
+
+public static class Program
 {
-    public static class Program
+    public static async Task Main(string[] args)
     {
-        public static async Task Main(string[] args)
-        {
-            var builder = WebAssemblyHostBuilder.CreateDefault(args);
+        var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-            builder
-                .Services
-                .AddSingleton<HttpClient>()
-                .AddSingleton<LocalStorageService>()
-                .AddSingleton<PersonalAccessTokenService>()
-                .AddSingleton<AzureDevOpsSettingsService>()
-                .AddSingleton<EventService>()
-                .AddSingleton<BuildsClient>()
-                .AddSingleton<ReleasesClient>();
+        builder
+            .Services
+            .AddSingleton<HttpClient>()
+            .AddSingleton<LocalStorageService>()
+            .AddSingleton<PersonalAccessTokenService>()
+            .AddSingleton<AzureDevOpsSettingsService>()
+            .AddSingleton<EventService>()
+            .AddSingleton<BuildsClient>()
+            .AddSingleton<ReleasesClient>();
 
-            builder.RootComponents.Add<App>("#app");
+        builder.RootComponents.Add<App>("#app");
 
-            await builder.Build().RunAsync().ConfigureAwait(false);
-        }
+        await builder.Build().RunAsync().ConfigureAwait(false);
     }
 }

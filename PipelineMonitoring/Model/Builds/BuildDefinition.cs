@@ -1,7 +1,6 @@
-﻿namespace PipelineMonitoring.Model.Builds
+﻿namespace PipelineMonitoring.Model.Builds;
+
+public class BuildDefinition
 {
-    public class BuildDefinition
-    {
-        public string Name { get; set; }
-    }
+    public string Name { get; set; }
 }

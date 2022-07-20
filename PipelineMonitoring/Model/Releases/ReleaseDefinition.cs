@@ -1,9 +1,8 @@
-﻿namespace PipelineMonitoring.Model.Releases
-{
-    public class ReleaseDefinition
-    {
-        public int Id { get; set; }
+﻿namespace PipelineMonitoring.Model.Releases;
 
-        public string Name { get; set; }
-    }
+public class ReleaseDefinition
+{
+    public int Id { get; set; }
+
+    public string Name { get; set; }
 }

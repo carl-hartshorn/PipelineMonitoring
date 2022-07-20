@@ -1,8 +1,7 @@
 ﻿using System;
 
-namespace PipelineMonitoring.Services
+namespace PipelineMonitoring.Services;
+
+public class AzureDevOpsSettingsChangedEventArgs : EventArgs
 {
-    public class AzureDevOpsSettingsChangedEventArgs : EventArgs
-    {
-    }
 }

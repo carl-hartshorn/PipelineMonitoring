@@ -5,36 +5,35 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
-namespace PipelineMonitoring.Services
+namespace PipelineMonitoring.Services;
+
+public class BuildsClient
 {
-    public class BuildsClient
+    private readonly AzureDevOpsSettingsService _azureDevOpsSettingsService;
+    private readonly HttpClient _httpClient;
+
+    public BuildsClient(
+        AzureDevOpsSettingsService azureDevOpsSettingsService,
+        HttpClient httpClient)
     {
-        private readonly AzureDevOpsSettingsService _azureDevOpsSettingsService;
-        private readonly HttpClient _httpClient;
+        _azureDevOpsSettingsService = azureDevOpsSettingsService;
+        _httpClient = httpClient;
+    }
 
-        public BuildsClient(
-            AzureDevOpsSettingsService azureDevOpsSettingsService,
-            HttpClient httpClient)
+    public async Task<Build[]> GetBuilds(FilterCriteria filterCriteria)
+    {
+        if (!_azureDevOpsSettingsService.HasOrganisationAndProject)
         {
-            _azureDevOpsSettingsService = azureDevOpsSettingsService;
-            _httpClient = httpClient;
+            return null;
         }
 
-        public async Task<Build[]> GetBuilds(FilterCriteria filterCriteria)
-        {
-            if (!_azureDevOpsSettingsService.HasOrganisationAndProject)
-            {
-                return null;
-            }
+        var buildList = await _httpClient
+            .GetFromJsonAsync<BuildList>(
+                $"https://dev.azure.com/{_azureDevOpsSettingsService.Organisation}/{_azureDevOpsSettingsService.Project}/_apis/build/builds?api-version=5.0&maxBuildsPerDefinition=1&queryOrder=startTimeDescending")
+            .ConfigureAwait(false);
 
-            var buildList = await _httpClient
-                .GetFromJsonAsync<BuildList>(
-                    $"https://dev.azure.com/{_azureDevOpsSettingsService.Organisation}/{_azureDevOpsSettingsService.Project}/_apis/build/builds?api-version=5.0&maxBuildsPerDefinition=1&queryOrder=startTimeDescending")
-                .ConfigureAwait(false);
-
-            return (filterCriteria?.ShowAll ?? false)
-                ? buildList.Value.ToArray()
-                : buildList.Value.Where(b => b.Result != Build.SucceededResult).ToArray();
-        }
+        return (filterCriteria?.ShowAll ?? false)
+            ? buildList.Value.ToArray()
+            : buildList.Value.Where(b => b.Result != Build.SucceededResult).ToArray();
     }
 }

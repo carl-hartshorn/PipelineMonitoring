@@ -8,106 +8,105 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
-namespace PipelineMonitoring.UnitTests
+namespace PipelineMonitoring.UnitTests;
+
+[TestClass]
+public sealed class BuildsClientShould : IDisposable
 {
-    [TestClass]
-    public sealed class BuildsClientShould : IDisposable
+    private readonly Mock<AzureDevOpsSettingsService> _mockAzureDevOpsSettingsService = new(null);
+    private readonly MockHttpMessageHandler _mockHttpMessageHandler = new();
+    private readonly HttpClient _httpClient;
+    private readonly BuildsClient _buildsClient;
+
+    public BuildsClientShould()
     {
-        private readonly Mock<AzureDevOpsSettingsService> _mockAzureDevOpsSettingsService = new(null);
-        private readonly MockHttpMessageHandler _mockHttpMessageHandler = new();
-        private readonly HttpClient _httpClient;
-        private readonly BuildsClient _buildsClient;
+        _httpClient = new(_mockHttpMessageHandler);
 
-        public BuildsClientShould()
-        {
-            _httpClient = new(_mockHttpMessageHandler);
+        _buildsClient = new(
+            _mockAzureDevOpsSettingsService.Object,
+            _httpClient);
+    }
 
-            _buildsClient = new(
-                _mockAzureDevOpsSettingsService.Object,
-                _httpClient);
-        }
+    [TestMethod]
+    public async Task ReturnNullWhenAzureDevOpsSettingsServiceHasOrganisationAndProjectIsFalse()
+    {
+        var result = await _buildsClient.GetBuilds(new FilterCriteria()).ConfigureAwait(false);
 
-        [TestMethod]
-        public async Task ReturnNullWhenAzureDevOpsSettingsServiceHasOrganisationAndProjectIsFalse()
-        {
-            var result = await _buildsClient.GetBuilds(new FilterCriteria()).ConfigureAwait(false);
+        Assert.IsNull(result);
+    }
 
-            Assert.IsNull(result);
-        }
-
-        [TestMethod]
-        public async Task GetTheBuildsUsingTheOrganisationAndProjectFromTheAzureDevOpsSettingsServiceWhenAzureDevOpsSettingsServiceHasOrganisationAndProjectIsTrue()
-        {
-            var organisation = Guid.NewGuid().ToString();
-            var project = Guid.NewGuid().ToString();
-            _mockAzureDevOpsSettingsService.Setup(m => m.HasOrganisationAndProject).Returns(true);
-            _mockAzureDevOpsSettingsService.Setup(m => m.Organisation).Returns(organisation);
-            _mockAzureDevOpsSettingsService.Setup(m => m.Project).Returns(project);
+    [TestMethod]
+    public async Task GetTheBuildsUsingTheOrganisationAndProjectFromTheAzureDevOpsSettingsServiceWhenAzureDevOpsSettingsServiceHasOrganisationAndProjectIsTrue()
+    {
+        var organisation = Guid.NewGuid().ToString();
+        var project = Guid.NewGuid().ToString();
+        _mockAzureDevOpsSettingsService.Setup(m => m.HasOrganisationAndProject).Returns(true);
+        _mockAzureDevOpsSettingsService.Setup(m => m.Organisation).Returns(organisation);
+        _mockAzureDevOpsSettingsService.Setup(m => m.Project).Returns(project);
             
-            await _buildsClient.GetBuilds(new FilterCriteria()).ConfigureAwait(false);
+        await _buildsClient.GetBuilds(new FilterCriteria()).ConfigureAwait(false);
 
-            Assert.IsNotNull(
-                _mockHttpMessageHandler
-                    .SentMessages
-                    .Single(
-                        m => m
-                            .RequestUri
-                            .ToString()
-                            .Contains(
-                                $"{organisation}/{project}",
-                                StringComparison.OrdinalIgnoreCase)));
-        }
+        Assert.IsNotNull(
+            _mockHttpMessageHandler
+                .SentMessages
+                .Single(
+                    m => m
+                        .RequestUri
+                        .ToString()
+                        .Contains(
+                            $"{organisation}/{project}",
+                            StringComparison.OrdinalIgnoreCase)));
+    }
 
-        [TestMethod]
-        public async Task ReturnSucceededBuildsWhenTheFilterCriteriaShowAllValueIsTrue()
-        {
-            var organisation = Guid.NewGuid().ToString();
-            var project = Guid.NewGuid().ToString();
-            _mockAzureDevOpsSettingsService.Setup(m => m.HasOrganisationAndProject).Returns(true);
-            _mockAzureDevOpsSettingsService.Setup(m => m.Organisation).Returns(organisation);
-            _mockAzureDevOpsSettingsService.Setup(m => m.Project).Returns(project);
+    [TestMethod]
+    public async Task ReturnSucceededBuildsWhenTheFilterCriteriaShowAllValueIsTrue()
+    {
+        var organisation = Guid.NewGuid().ToString();
+        var project = Guid.NewGuid().ToString();
+        _mockAzureDevOpsSettingsService.Setup(m => m.HasOrganisationAndProject).Returns(true);
+        _mockAzureDevOpsSettingsService.Setup(m => m.Organisation).Returns(organisation);
+        _mockAzureDevOpsSettingsService.Setup(m => m.Project).Returns(project);
 
-            _mockHttpMessageHandler.SetupResponse(@"{ ""value"": [ { ""result"": ""succeeded"" }, { ""result"": ""failed"" } ] }");
+        _mockHttpMessageHandler.SetupResponse(@"{ ""value"": [ { ""result"": ""succeeded"" }, { ""result"": ""failed"" } ] }");
             
-            var builds = await _buildsClient
-                .GetBuilds(
-                    new FilterCriteria
-                    {
-                        ShowAll = true
-                    })
-                .ConfigureAwait(false);
+        var builds = await _buildsClient
+            .GetBuilds(
+                new FilterCriteria
+                {
+                    ShowAll = true
+                })
+            .ConfigureAwait(false);
 
-            Assert.AreEqual(2, builds.Length);
-            Assert.IsTrue(builds.Any(b => b.Result == Build.SucceededResult));
-        }
+        Assert.AreEqual(2, builds.Length);
+        Assert.IsTrue(builds.Any(b => b.Result == Build.SucceededResult));
+    }
 
-        [TestMethod]
-        public async Task NotReturnSucceededBuildsWhenTheFilterCriteriaShowAllValueIsFalse()
-        {
-            var organisation = Guid.NewGuid().ToString();
-            var project = Guid.NewGuid().ToString();
-            _mockAzureDevOpsSettingsService.Setup(m => m.HasOrganisationAndProject).Returns(true);
-            _mockAzureDevOpsSettingsService.Setup(m => m.Organisation).Returns(organisation);
-            _mockAzureDevOpsSettingsService.Setup(m => m.Project).Returns(project);
+    [TestMethod]
+    public async Task NotReturnSucceededBuildsWhenTheFilterCriteriaShowAllValueIsFalse()
+    {
+        var organisation = Guid.NewGuid().ToString();
+        var project = Guid.NewGuid().ToString();
+        _mockAzureDevOpsSettingsService.Setup(m => m.HasOrganisationAndProject).Returns(true);
+        _mockAzureDevOpsSettingsService.Setup(m => m.Organisation).Returns(organisation);
+        _mockAzureDevOpsSettingsService.Setup(m => m.Project).Returns(project);
 
-            _mockHttpMessageHandler.SetupResponse(@"{ ""value"": [ { ""result"": ""succeeded"" }, { ""result"": ""failed"" } ] }");
+        _mockHttpMessageHandler.SetupResponse(@"{ ""value"": [ { ""result"": ""succeeded"" }, { ""result"": ""failed"" } ] }");
             
-            var builds = await _buildsClient
-                .GetBuilds(
-                    new FilterCriteria
-                    {
-                        ShowAll = false
-                    })
-                .ConfigureAwait(false);
+        var builds = await _buildsClient
+            .GetBuilds(
+                new FilterCriteria
+                {
+                    ShowAll = false
+                })
+            .ConfigureAwait(false);
 
-            Assert.AreEqual(1, builds.Length);
-            Assert.IsFalse(builds.Any(b => b.Result == Build.SucceededResult));
-        }
+        Assert.AreEqual(1, builds.Length);
+        Assert.IsFalse(builds.Any(b => b.Result == Build.SucceededResult));
+    }
 
-        public void Dispose()
-        {
-            _mockHttpMessageHandler.Dispose();
-            _httpClient.Dispose();
-        }
+    public void Dispose()
+    {
+        _mockHttpMessageHandler.Dispose();
+        _httpClient.Dispose();
     }
 }

@@ -1,21 +1,20 @@
 ﻿using PipelineMonitoring.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace PipelineMonitoring.UnitTests
+namespace PipelineMonitoring.UnitTests;
+
+[TestClass]
+public class EventServiceShould
 {
-    [TestClass]
-    public class EventServiceShould
+    [TestMethod]
+    public void SendFilterChangedWhenFilterChangedIsCalled()
     {
-        [TestMethod]
-        public void SendFilterChangedWhenFilterChangedIsCalled()
-        {
-            var handlerTriggered = false;
-            var service = new EventService();
-            service.FilterChanged += (sender, eventArgs) => handlerTriggered = true ;
+        var handlerTriggered = false;
+        var service = new EventService();
+        service.FilterChanged += (sender, eventArgs) => handlerTriggered = true ;
 
-            service.SendFilterChanged();
+        service.SendFilterChanged();
 
-            Assert.IsTrue(handlerTriggered);
-        }
+        Assert.IsTrue(handlerTriggered);
     }
 }

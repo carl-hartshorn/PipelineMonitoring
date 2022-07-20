@@ -5,43 +5,42 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 
-namespace PipelineMonitoring.Services
+namespace PipelineMonitoring.Services;
+
+public class ReleasesClient
 {
-    public class ReleasesClient
+    private readonly AzureDevOpsSettingsService _azureDevOpsSettingsService;
+    private readonly HttpClient _httpClient;
+
+    public ReleasesClient(
+        AzureDevOpsSettingsService azureDevOpsSettingsService,
+        HttpClient httpClient)
     {
-        private readonly AzureDevOpsSettingsService _azureDevOpsSettingsService;
-        private readonly HttpClient _httpClient;
+        _azureDevOpsSettingsService = azureDevOpsSettingsService;
+        _httpClient = httpClient;
+    }
 
-        public ReleasesClient(
-            AzureDevOpsSettingsService azureDevOpsSettingsService,
-            HttpClient httpClient)
+    public async Task<Release[]> GetReleases(FilterCriteria filterCriteria)
+    {
+        if (!_azureDevOpsSettingsService.HasOrganisationAndProject)
         {
-            _azureDevOpsSettingsService = azureDevOpsSettingsService;
-            _httpClient = httpClient;
+            return null;
         }
 
-        public async Task<Release[]> GetReleases(FilterCriteria filterCriteria)
-        {
-            if (!_azureDevOpsSettingsService.HasOrganisationAndProject)
-            {
-                return null;
-            }
+        var releaseList = await _httpClient
+            .GetFromJsonAsync<ReleaseList>(
+                $"https://vsrm.dev.azure.com/{_azureDevOpsSettingsService.Organisation}/{_azureDevOpsSettingsService.Project}/_apis/release/releases?api-version=5.0&$expand=environments")
+            .ConfigureAwait(false);
 
-            var releaseList = await _httpClient
-                .GetFromJsonAsync<ReleaseList>(
-                    $"https://vsrm.dev.azure.com/{_azureDevOpsSettingsService.Organisation}/{_azureDevOpsSettingsService.Project}/_apis/release/releases?api-version=5.0&$expand=environments")
-                .ConfigureAwait(false);
-
-            return (filterCriteria?.ShowAll ?? false)
-                ? releaseList.MostRecentReleasesByDefinition().ToArray()
-                : releaseList
-                    .MostRecentReleasesByDefinition()
-                    .Where(
-                        b => b
-                            .Environments
-                            .Any(
-                                e => e.Status != Environment.SucceededStatus))
-                    .ToArray();
-        }
+        return (filterCriteria?.ShowAll ?? false)
+            ? releaseList.MostRecentReleasesByDefinition().ToArray()
+            : releaseList
+                .MostRecentReleasesByDefinition()
+                .Where(
+                    b => b
+                        .Environments
+                        .Any(
+                            e => e.Status != Environment.SucceededStatus))
+                .ToArray();
     }
 }
