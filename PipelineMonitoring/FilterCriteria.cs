@@ -3,7 +3,7 @@ using System;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace PipelineMonitoring.Model.Common;
+namespace PipelineMonitoring;
 
 public class FilterCriteria
 {

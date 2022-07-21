@@ -1,5 +1,4 @@
-﻿using PipelineMonitoring.Model.Common;
-using PipelineMonitoring.Model.Releases;
+﻿using PipelineMonitoring.AzureDevOps.Releases;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
@@ -40,7 +39,7 @@ public class ReleasesClient
                     b => b
                         .Environments
                         .Any(
-                            e => e.Status != Environment.SucceededStatus))
+                            e => e.Status != EnvironmentStatus.Succeeded))
                 .ToArray();
     }
 }

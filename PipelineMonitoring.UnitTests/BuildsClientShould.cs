@@ -1,8 +1,7 @@
-﻿using PipelineMonitoring.Model.Builds;
-using PipelineMonitoring.Model.Common;
-using PipelineMonitoring.Services;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using PipelineMonitoring.AzureDevOps.Builds;
+using PipelineMonitoring.Services;
 using System;
 using System.Linq;
 using System.Net.Http;
@@ -78,7 +77,7 @@ public sealed class BuildsClientShould : IDisposable
             .ConfigureAwait(false);
 
         Assert.AreEqual(2, builds.Length);
-        Assert.IsTrue(builds.Any(b => b.Result == Build.SucceededResult));
+        Assert.IsTrue(builds.Any(b => b.Result == BuildResult.Succeeded));
     }
 
     [TestMethod]
@@ -101,7 +100,7 @@ public sealed class BuildsClientShould : IDisposable
             .ConfigureAwait(false);
 
         Assert.AreEqual(1, builds.Length);
-        Assert.IsFalse(builds.Any(b => b.Result == Build.SucceededResult));
+        Assert.IsFalse(builds.Any(b => b.Result == BuildResult.Succeeded));
     }
 
     public void Dispose()

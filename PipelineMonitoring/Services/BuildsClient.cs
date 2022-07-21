@@ -1,8 +1,9 @@
-﻿using PipelineMonitoring.Model.Builds;
-using PipelineMonitoring.Model.Common;
+﻿using PipelineMonitoring.AzureDevOps.Builds;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace PipelineMonitoring.Services;
@@ -34,6 +35,6 @@ public class BuildsClient
 
         return (filterCriteria?.ShowAll ?? false)
             ? buildList.Value.ToArray()
-            : buildList.Value.Where(b => b.Result != Build.SucceededResult).ToArray();
+            : buildList.Value.Where(b => b.Result != BuildResult.Succeeded).ToArray();
     }
 }

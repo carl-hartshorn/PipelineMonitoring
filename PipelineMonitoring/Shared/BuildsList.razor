@@ -1,9 +1,9 @@
-﻿@using PipelineMonitoring.Model.Builds
+﻿@using PipelineMonitoring.AzureDevOps.Builds
 
 @foreach (var build in Builds)
 {
-    <a href="@build._Links.Web.Href" target="_blank" style="text-decoration: none!important">
-        <div class="card mb-4 @(build.CardClasses)">
+    <a href="@build.Links.Web.Href" target="_blank" style="text-decoration: none!important">
+        <div class="card mb-4 @(GetCardClasses(build))">
             <div class="card-body">
                 <h2 class="card-title">@build.Definition.Name</h2>
                 <p class="card-text">@build.BuildNumber</p>
@@ -15,4 +15,20 @@
 @code {
     [Parameter]
     public Build[] Builds { get; set; }
+
+    public static string GetCardClasses(Build build)
+    {
+        if (build.Status == BuildStatus.InProgress)
+        {
+            return "bg-info text-white";
+        }
+
+        return build.Result switch
+        {
+            BuildResult.Succeeded => "bg-success text-white",
+            BuildResult.Failed => "bg-danger text-white",
+            BuildResult.Canceled or BuildResult.None or BuildResult.PartiallySucceeded => "bg-warning text-white",
+            _ => "bg-light text-dark",
+        };
+    }
 }

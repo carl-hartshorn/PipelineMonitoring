@@ -1,6 +1,6 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
-using PipelineMonitoring.Model.Common;
+using PipelineMonitoring.AzureDevOps.Releases;
 using PipelineMonitoring.Services;
 using System;
 using System.Linq;
@@ -108,7 +108,7 @@ public sealed class ReleasesClientShould : IDisposable
                     b => b
                         .Environments
                         .All(
-                            e => e.Status == Model.Releases.Environment.SucceededStatus)));
+                            e => e.Status == EnvironmentStatus.Succeeded)));
     }
 
     [TestMethod]
@@ -168,7 +168,7 @@ public sealed class ReleasesClientShould : IDisposable
                     b => b
                         .Environments
                         .All(
-                            e => e.Status == Model.Releases.Environment.SucceededStatus)));
+                            e => e.Status == EnvironmentStatus.Succeeded)));
     }
 
     [TestMethod]
@@ -217,7 +217,7 @@ public sealed class ReleasesClientShould : IDisposable
             .ConfigureAwait(false);
 
         Assert.AreEqual(1, releases.Length);
-        Assert.AreEqual("queued", releases.Single().Environments.Single().Status);
+        Assert.AreEqual(EnvironmentStatus.Queued, releases.Single().Environments.Single().Status);
     }
 
     public void Dispose()

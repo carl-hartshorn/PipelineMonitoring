@@ -18,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PipelineMonitoring.AzureDevOps", "PipelineMonitoring.AzureDevOps\PipelineMonitoring.AzureDevOps.csproj", "{8204E5E5-CE31-4954-967A-765B7A2504F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -52,6 +54,18 @@ Global
 		{C8939F7A-E409-461D-960B-A79788E73CAD}.Release|x64.Build.0 = Release|Any CPU
 		{C8939F7A-E409-461D-960B-A79788E73CAD}.Release|x86.ActiveCfg = Release|Any CPU
 		{C8939F7A-E409-461D-960B-A79788E73CAD}.Release|x86.Build.0 = Release|Any CPU
+		{8204E5E5-CE31-4954-967A-765B7A2504F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8204E5E5-CE31-4954-967A-765B7A2504F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8204E5E5-CE31-4954-967A-765B7A2504F0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{8204E5E5-CE31-4954-967A-765B7A2504F0}.Debug|x64.Build.0 = Debug|Any CPU
+		{8204E5E5-CE31-4954-967A-765B7A2504F0}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{8204E5E5-CE31-4954-967A-765B7A2504F0}.Debug|x86.Build.0 = Debug|Any CPU
+		{8204E5E5-CE31-4954-967A-765B7A2504F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8204E5E5-CE31-4954-967A-765B7A2504F0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8204E5E5-CE31-4954-967A-765B7A2504F0}.Release|x64.ActiveCfg = Release|Any CPU
+		{8204E5E5-CE31-4954-967A-765B7A2504F0}.Release|x64.Build.0 = Release|Any CPU
+		{8204E5E5-CE31-4954-967A-765B7A2504F0}.Release|x86.ActiveCfg = Release|Any CPU
+		{8204E5E5-CE31-4954-967A-765B7A2504F0}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

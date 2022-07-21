@@ -1,16 +1,17 @@
-﻿@using PipelineMonitoring.Model.Releases
+﻿@using PipelineMonitoring.AzureDevOps.Releases
+@using Environment = PipelineMonitoring.AzureDevOps.Releases.Environment
 
 @foreach (var release in Releases)
 {
-    <a href="@release._Links.Web.Href" target="_blank" style="text-decoration: none!important">
-        <div class="card mb-4 @(release.CardClasses)">
+    <a href="@release.Links.Web.Href" target="_blank" style="text-decoration: none!important">
+        <div class="card mb-4 @(GetCardClasses(release))">
             <div class="card-body">
                 <h2 class="card-title">@release.Name</h2>
                 <p class="card-text">@release.ReleaseDefinition.Name</p>
                 <div class="card-group">
                     @foreach (var environment in release.Environments)
                     {
-                        <div class="card @(environment.CardClasses)">
+                        <div class="card @(GetCardClasses(environment))">
                             <div class="card-body">
                                 <h6 class="card-title text-center mb-0">@environment.Name</h6>
                             </div>
@@ -25,4 +26,28 @@
 @code {
     [Parameter]
     public Release[] Releases { get; set; }
+
+    public static string GetCardClasses(Release release)
+    {
+        var lastEnvironmentWithoutNotStartedStatus = release
+            .Environments
+            .LastOrDefault(e => e.Status != EnvironmentStatus.NotStarted);
+
+        return lastEnvironmentWithoutNotStartedStatus == null
+            ? "bg-secondary text-white"
+            : GetCardClasses(lastEnvironmentWithoutNotStartedStatus);
+    }
+
+    private static string GetCardClasses(Environment environment)
+    {
+        return environment.Status switch
+        {
+            EnvironmentStatus.Succeeded => "bg-success text-white",
+            EnvironmentStatus.Rejected => "bg-danger text-white",
+            EnvironmentStatus.Canceled or EnvironmentStatus.PartiallySucceeded => "bg-warning text-white",
+            EnvironmentStatus.InProgress or EnvironmentStatus.Queued or EnvironmentStatus.Scheduled => "bg-info text-white",
+            EnvironmentStatus.NotStarted => "bg-secondary text-white",
+            _ => "bg-light text-dark",
+        };
+    }
 }
