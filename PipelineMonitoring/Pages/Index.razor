@@ -18,11 +18,15 @@
     </div>
 </div>
 
-@if (errorFetching)
+@if (_errorFetching)
 {
     <Error PipelineEntityPlural="builds and releases" />
 }
-else if ((builds == null || releases == null) && AzureDevOpsSettingsService.HasOrganisationAndProject)
+else if (!AzureDevOpsSettingsService.HasOrganisationAndProject)
+{
+    <AzureDevOpsSettingsRequired />
+}
+else if (_builds == null || _releases == null)
 {
     <div class="text-center">
         <div class="spinner-border text-light" role="status">
@@ -30,35 +34,31 @@ else if ((builds == null || releases == null) && AzureDevOpsSettingsService.HasO
         </div>
     </div>
 }
-else if (!AzureDevOpsSettingsService.HasOrganisationAndProject)
-{
-    <AzureDevOpsSettingsRequired />
-}
-else if (!builds.Any() && !releases.Any())
+else if (!_builds.Any() && !_releases.Any())
 {
     <p class="text-center">All green 🎉</p>
 }
 else
 {
-    <div class="@(!builds.Any() || !releases.Any() ? "container" : string.Empty)">
+    <div class="@(!_builds.Any() || !_releases.Any() ? "container" : string.Empty)">
         <div class="row">
-            @if (builds.Any())
+            @if (_builds.Any())
             {
-                <div class="@(releases.Any() ? "col-md-6" : "col-md-12")">
+                <div class="@(_releases.Any() ? "col-md-6" : "col-md-12")">
                     <div class="text-center mb-4">
                         🛠️
                     </div>
-                    <BuildsList Builds="@builds" />
+                    <BuildsList Builds="@_builds" />
                 </div>
             }
 
-            @if (releases.Any())
+            @if (_releases.Any())
             {
-                <div class="@(builds.Any() ? "col-md-6" : "col-md-12")">
+                <div class="@(_builds.Any() ? "col-md-6" : "col-md-12")">
                     <div class="text-center mb-4">
                         🚀
                     </div>
-                    <ReleasesList Releases="@releases" />
+                    <ReleasesList Releases="@_releases" />
                 </div>
             }
         </div>
@@ -66,13 +66,13 @@ else
 }
 
 @code {
-    Build[] builds;
-    Release[] releases;
-    EventHandler<PersonalAccessTokenEventArgs> PersonalAccessTokenEventHandler;
-    EventHandler<FilterEventArgs> FilterEventHandler;
-    bool errorFetching;
+    Build[]? _builds;
+    Release[]? _releases;
+    EventHandler<PersonalAccessTokenEventArgs>? _personalAccessTokenEventHandler;
+    EventHandler<FilterEventArgs>? _filterEventHandler;
+    bool _errorFetching;
 
-    FilterCriteria FilterCriteria { get; set; } = new FilterCriteria();
+    FilterCriteria FilterCriteria { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -80,48 +80,46 @@ else
         await PersonalAccessTokenService.InitialiseFromLocalStorage();
         FilterCriteria = await FilterCriteria.LoadFromLocalStorage(LocalStorageService);
 
-        PersonalAccessTokenEventHandler = new EventHandler<PersonalAccessTokenEventArgs>(
-            async (sender, args) => await FetchBuildsAndReleases());
+        _personalAccessTokenEventHandler = async (_, _) => await FetchBuildsAndReleases();
+        
+        _filterEventHandler = async (_, _) =>
+        {
+            await FilterCriteria.StoreToLocalStorage(LocalStorageService);
+            await FetchBuildsAndReleases();
+        };
 
-        FilterEventHandler = new EventHandler<FilterEventArgs>(
-            async (sender, args) =>
-            {
-                await FilterCriteria.StoreToLocalStorage(LocalStorageService);
-                await FetchBuildsAndReleases();
-            });
-
-        PersonalAccessTokenService.PersonalAccessTokenChanged += PersonalAccessTokenEventHandler;
-        EventService.FilterChanged += FilterEventHandler;
+        PersonalAccessTokenService.PersonalAccessTokenChanged += _personalAccessTokenEventHandler;
+        EventService.FilterChanged += _filterEventHandler;
 
         await FetchBuildsAndReleases();
     }
 
     public void Dispose()
     {
-        PersonalAccessTokenService.PersonalAccessTokenChanged -= PersonalAccessTokenEventHandler;
-        EventService.FilterChanged -= FilterEventHandler;
+        PersonalAccessTokenService.PersonalAccessTokenChanged -= _personalAccessTokenEventHandler;
+        EventService.FilterChanged -= _filterEventHandler;
     }
 
     async Task FetchBuildsAndReleases()
     {
-        builds = null;
-        releases = null;
-        errorFetching = false;
-        this.StateHasChanged();
+        _builds = null;
+        _releases = null;
+        _errorFetching = false;
+        StateHasChanged();
 
         if (AzureDevOpsSettingsService.HasOrganisationAndProject)
         {
             try
             {
-                builds = await BuildsClient.GetBuilds(FilterCriteria);
-                releases = await ReleasesClient.GetReleases(FilterCriteria);
+                _builds = await BuildsClient.GetBuilds(FilterCriteria);
+                _releases = await ReleasesClient.GetReleases(FilterCriteria);
             }
             catch
             {
-                errorFetching = true;
+                _errorFetching = true;
             }
         }
 
-        this.StateHasChanged();
+        StateHasChanged();
     }
 }

@@ -50,11 +50,11 @@ public sealed class ReleasesClientShould : IDisposable
                 .SentMessages
                 .Single(
                     m => m
-                        .RequestUri
+                        .RequestUri?
                         .ToString()
                         .Contains(
                             $"{organisation}/{project}",
-                            StringComparison.OrdinalIgnoreCase)));
+                            StringComparison.OrdinalIgnoreCase) == true));
     }
 
     [TestMethod]

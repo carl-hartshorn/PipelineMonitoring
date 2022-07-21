@@ -1,14 +1,10 @@
 ﻿using PipelineMonitoring.AzureDevOps.Builds;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace PipelineMonitoring.Services;
 
-public class BuildsClient
+internal class BuildsClient
 {
     private readonly AzureDevOpsSettingsService _azureDevOpsSettingsService;
     private readonly HttpClient _httpClient;
@@ -25,7 +21,7 @@ public class BuildsClient
     {
         if (!_azureDevOpsSettingsService.HasOrganisationAndProject)
         {
-            return null;
+            return Array.Empty<Build>();
         }
 
         var buildList = await _httpClient
@@ -33,7 +29,12 @@ public class BuildsClient
                 $"https://dev.azure.com/{_azureDevOpsSettingsService.Organisation}/{_azureDevOpsSettingsService.Project}/_apis/build/builds?api-version=5.0&maxBuildsPerDefinition=1&queryOrder=startTimeDescending")
             .ConfigureAwait(false);
 
-        return (filterCriteria?.ShowAll ?? false)
+        if (buildList is null)
+        {
+            throw new JsonException($"Failed to deserialise {nameof(BuildList)}");
+        }
+        
+        return filterCriteria.ShowAll
             ? buildList.Value.ToArray()
             : buildList.Value.Where(b => b.Result != BuildResult.Succeeded).ToArray();
     }

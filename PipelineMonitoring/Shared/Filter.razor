@@ -12,11 +12,12 @@
 </div>
 
 @code {
-    [Parameter]
-    public FilterCriteria FilterCriteria { get; set; }
 
     [Parameter]
-    public string FilterLabel { get; set; }
+    public FilterCriteria FilterCriteria { get; set; } = new();
+
+    [Parameter]
+    public string FilterLabel { get; set; } = string.Empty;
 
     private void UpdateShowAllTo(bool newValue)
     {

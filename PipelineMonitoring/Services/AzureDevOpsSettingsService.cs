@@ -1,29 +1,25 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿namespace PipelineMonitoring.Services;
 
-namespace PipelineMonitoring.Services;
-
-public class AzureDevOpsSettingsService
+internal class AzureDevOpsSettingsService
 {
     private const string _localStorageKey = "AzureDevOpsSettings";
 
     private readonly LocalStorageService _localStorageService;
-    private string _organisation;
-    private string _project;
+    private string? _organisation;
+    private string? _project;
 
     public AzureDevOpsSettingsService(
         LocalStorageService localStorageService)
     {
         _localStorageService = localStorageService;
 
-        AzureDevOpsSettingsChanged += new EventHandler<AzureDevOpsSettingsChangedEventArgs>(
-            async (sender, args) =>
-            {
-                await SaveToLocalStorage().ConfigureAwait(false);
-            });
+        AzureDevOpsSettingsChanged += async (_, _) =>
+        {
+            await SaveToLocalStorage().ConfigureAwait(false);
+        };
     }
 
-    public virtual string Organisation
+    public string? Organisation
     {
         get => _organisation;
         set
@@ -33,7 +29,7 @@ public class AzureDevOpsSettingsService
         }
     }
 
-    public virtual string Project
+    public string? Project
     {
         get => _project;
         set
@@ -43,7 +39,7 @@ public class AzureDevOpsSettingsService
         }
     }
 
-    public virtual bool HasOrganisationAndProject
+    public bool HasOrganisationAndProject
         => !string.IsNullOrWhiteSpace(Organisation)
            && !string.IsNullOrWhiteSpace(Project);
 

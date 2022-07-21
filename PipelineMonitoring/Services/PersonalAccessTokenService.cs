@@ -1,8 +1,5 @@
-﻿using System;
-using System.Net.Http;
-using System.Net.Http.Headers;
+﻿using System.Net.Http.Headers;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace PipelineMonitoring.Services;
 
@@ -12,7 +9,7 @@ public class PersonalAccessTokenService
 
     private readonly HttpClient _httpClient;
     private readonly LocalStorageService _localStorageService;
-    private string _personalAccessToken;
+    private string? _personalAccessToken;
 
     public PersonalAccessTokenService(
         HttpClient httpClient,
@@ -21,14 +18,13 @@ public class PersonalAccessTokenService
         _httpClient = httpClient;
         _localStorageService = localStorageService;
 
-        PersonalAccessTokenChanged += new EventHandler<PersonalAccessTokenEventArgs>(
-            async (sender, args) =>
-            {
-                await SaveToLocalStorage().ConfigureAwait(false);
-            });
+        PersonalAccessTokenChanged += async (_, _) =>
+        {
+            await SaveToLocalStorage().ConfigureAwait(false);
+        };
     }
         
-    public string PersonalAccessToken
+    public string? PersonalAccessToken
     {
         get => _personalAccessToken;
         set
@@ -60,6 +56,11 @@ public class PersonalAccessTokenService
 
     private async Task SaveToLocalStorage()
     {
+        if (PersonalAccessToken is null)
+        {
+            return;
+        }
+        
         await _localStorageService
             .SetItem(_localStorageKey, PersonalAccessToken)
             .ConfigureAwait(false);

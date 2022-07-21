@@ -24,8 +24,9 @@
 }
 
 @code {
+
     [Parameter]
-    public Release[] Releases { get; set; }
+    public Release[] Releases { get; set; } = Array.Empty<Release>();
 
     public static string GetCardClasses(Release release)
     {

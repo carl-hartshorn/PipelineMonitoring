@@ -1,13 +1,11 @@
-﻿using System;
-
-namespace PipelineMonitoring.Services;
+﻿namespace PipelineMonitoring.Services;
 
 public class EventService
 {
     public EventService()
     {
         // Sending of an event fails if nothing listens to that event
-        FilterChanged += (sender, args) => { };
+        FilterChanged += (_, _) => { };
     }
 
     public void SendFilterChanged()

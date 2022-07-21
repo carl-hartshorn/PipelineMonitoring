@@ -1,13 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Net;
 
 namespace PipelineMonitoring.UnitTests;
 
 public class MockHttpMessageHandler : HttpMessageHandler
 {
-    private HttpResponseMessage _response;
+    private HttpResponseMessage? _response;
         
     public ICollection<HttpRequestMessage> SentMessages { get; } = new List<HttpRequestMessage>();
 
@@ -23,9 +21,10 @@ public class MockHttpMessageHandler : HttpMessageHandler
         return Task.FromResult(_response);
     }
 
+    [MemberNotNull(nameof(_response))]
     public void SetupResponse(string jsonString)
     {
-        _response = new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+        _response = new HttpResponseMessage(HttpStatusCode.OK)
         {
             Content = new StringContent(jsonString)
         };

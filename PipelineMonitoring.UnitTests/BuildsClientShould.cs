@@ -2,10 +2,6 @@
 using Moq;
 using PipelineMonitoring.AzureDevOps.Builds;
 using PipelineMonitoring.Services;
-using System;
-using System.Linq;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace PipelineMonitoring.UnitTests;
 
@@ -50,11 +46,11 @@ public sealed class BuildsClientShould : IDisposable
                 .SentMessages
                 .Single(
                     m => m
-                        .RequestUri
+                        .RequestUri?
                         .ToString()
                         .Contains(
                             $"{organisation}/{project}",
-                            StringComparison.OrdinalIgnoreCase)));
+                            StringComparison.OrdinalIgnoreCase) == true));
     }
 
     [TestMethod]

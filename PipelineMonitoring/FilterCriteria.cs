@@ -1,7 +1,5 @@
 ﻿using PipelineMonitoring.Services;
-using System;
 using System.Text.Json;
-using System.Threading.Tasks;
 
 namespace PipelineMonitoring;
 
@@ -22,7 +20,7 @@ public class FilterCriteria
 
         if (!string.IsNullOrWhiteSpace(persistedFilterCriteria))
         {
-            return JsonSerializer.Deserialize<FilterCriteria>(persistedFilterCriteria);
+            return JsonSerializer.Deserialize<FilterCriteria>(persistedFilterCriteria) ?? new FilterCriteria();
         }
 
         return new FilterCriteria();

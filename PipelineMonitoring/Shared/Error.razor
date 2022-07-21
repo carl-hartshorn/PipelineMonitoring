@@ -1,6 +1,7 @@
-﻿<p class="text-center">Failed to fetch @PipelineEntityPlural, do you need to <NavLink href="/settings">set a personal access token</NavLink> or has it expired?</p>
+﻿@using System.Diagnostics.CodeAnalysis
+<p class="text-center">Failed to fetch @PipelineEntityPlural, do you need to <NavLink href="/settings">set a personal access token</NavLink> or has it expired?</p>
 
 @code {
     [Parameter]
-    public string PipelineEntityPlural { get; set; }
+    public string PipelineEntityPlural { get; set; } = string.Empty;
 }

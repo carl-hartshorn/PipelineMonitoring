@@ -1,12 +1,10 @@
 ﻿using PipelineMonitoring.AzureDevOps.Releases;
-using System.Linq;
-using System.Net.Http;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
+using System.Text.Json;
 
 namespace PipelineMonitoring.Services;
 
-public class ReleasesClient
+internal class ReleasesClient
 {
     private readonly AzureDevOpsSettingsService _azureDevOpsSettingsService;
     private readonly HttpClient _httpClient;
@@ -23,7 +21,7 @@ public class ReleasesClient
     {
         if (!_azureDevOpsSettingsService.HasOrganisationAndProject)
         {
-            return null;
+            return Array.Empty<Release>();
         }
 
         var releaseList = await _httpClient
@@ -31,7 +29,12 @@ public class ReleasesClient
                 $"https://vsrm.dev.azure.com/{_azureDevOpsSettingsService.Organisation}/{_azureDevOpsSettingsService.Project}/_apis/release/releases?api-version=5.0&$expand=environments")
             .ConfigureAwait(false);
 
-        return (filterCriteria?.ShowAll ?? false)
+        if (releaseList is null)
+        {
+            throw new JsonException($"Failed to deserialise {nameof(ReleaseList)}");
+        }
+        
+        return filterCriteria.ShowAll
             ? releaseList.MostRecentReleasesByDefinition().ToArray()
             : releaseList
                 .MostRecentReleasesByDefinition()

@@ -2,7 +2,7 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using PipelineMonitoring.AzureDevOps.Releases;
 using PipelineMonitoring.Shared;
-using System.Linq;
+using Environment = PipelineMonitoring.AzureDevOps.Releases.Environment;
 
 namespace PipelineMonitoring.UnitTests;
 

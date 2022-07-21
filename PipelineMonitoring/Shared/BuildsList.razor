@@ -13,8 +13,9 @@
 }
 
 @code {
+
     [Parameter]
-    public Build[] Builds { get; set; }
+    public Build[] Builds { get; set; } = Array.Empty<Build>();
 
     public static string GetCardClasses(Build build)
     {

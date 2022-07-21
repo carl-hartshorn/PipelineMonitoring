@@ -5,7 +5,7 @@
 <div class="form-inline mb-4">
     <label for="refresh-interval-selector" class="mr-2 d-none d-lg-inline-block">Refresh every</label>
     <div class="input-group">
-        <select if="refresh-interval-selector" class="form-control" @bind="RefreshEvery">
+        <select id="refresh-interval-selector" class="form-control" @bind="RefreshEvery">
             <option value="@RefreshInterval.None">None</option>
             <option value="@RefreshInterval.OneMinute">Minute</option>
             <option value="@RefreshInterval.FiveMinutes">Five minutes</option>
@@ -17,11 +17,12 @@
 </div>
 
 @code {
-    [Parameter]
-    public Func<Task> RefreshAction { get; set; }
 
     [Parameter]
-    public string LocalStorageKeyPrefix { get; set; }
+    public Func<Task> RefreshAction { get; set; } = () => Task.CompletedTask;
+
+    [Parameter]
+    public string LocalStorageKeyPrefix { get; set; } = string.Empty;
 
     private const string LocalStorageKey = "RefreshInterval";
 
@@ -38,7 +39,7 @@
         }
     }
 
-    Timer timer;
+    Timer? _timer;
 
     protected override async Task OnInitializedAsync()
     {
@@ -51,9 +52,8 @@
 
         var refreshMilliseconds = MillisecondsFrom(_refreshEvery);
 
-        timer = new Timer(
-            new TimerCallback(
-                _ => RefreshAction()),
+        _timer = new Timer(
+            _ => RefreshAction(),
             null,
             refreshMilliseconds,
             refreshMilliseconds);
@@ -61,7 +61,7 @@
 
     public void Dispose()
     {
-        timer.Dispose();
+        _timer?.Dispose();
     }
 
     public async Task Refresh()
@@ -73,22 +73,18 @@
     void RestartTimer()
     {
         var refreshMilliseconds = MillisecondsFrom(_refreshEvery);
-        timer.Change(refreshMilliseconds, refreshMilliseconds);
+        _timer?.Change(refreshMilliseconds, refreshMilliseconds);
     }
 
     int MillisecondsFrom(RefreshInterval refreshInterval)
     {
-        switch (refreshInterval)
+        return refreshInterval switch
         {
-            case RefreshInterval.None:
-                return Timeout.Infinite;
-            case RefreshInterval.OneMinute:
-                return 60000;
-            case RefreshInterval.FiveMinutes:
-                return 300000;
-            default:
-                return Timeout.Infinite;
-        }
+            RefreshInterval.None => Timeout.Infinite,
+            RefreshInterval.OneMinute => 60000,
+            RefreshInterval.FiveMinutes => 300000,
+            _ => Timeout.Infinite
+        };
     }
 
     enum RefreshInterval
